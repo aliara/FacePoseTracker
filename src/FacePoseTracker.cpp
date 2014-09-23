@@ -9,6 +9,7 @@
 #include <iostream>
 #include <ctype.h>
 #include <fstream>
+#include <math.h>
 
 
 
@@ -19,8 +20,8 @@ using namespace std;
 
 
 double _intrinsics[9] =
-	{ 360, 0., W/2,
-	  0., 360, H/2,
+	{ focalPoint, 0., W/2,
+	  0., focalPoint, H/2,
 	  0., 0., 1. };
 
 CvMat intrinsics = cvMat(4,4,CV_64F, _intrinsics);
@@ -40,7 +41,11 @@ void posit(int n, CvPoint3D32f *model, CvPoint2D32f *projection, double *tvec, d
 	//CvPOSITObject *positObject = cvCreatePOSITObject( &model[0], 4 );
 	CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 400, 1.0e-5f);
 	cvPOSIT( positObject, &projection[0], focalPoint, criteria, _prmat, _ptvec );
-	cvRodrigues2(&prmat, &prvec);
+//	cvRodrigues2(&prmat, &prvec);
+	_prvec[0]=atan2((double)_prmat[7],(double)_prmat[8]);
+	double a =(double)pow(_prmat[7],2)+(double)pow(_prmat[8],2);
+	_prvec[1]=atan2((double)(-1*_prmat[6]),sqrt(a));
+	_prvec[2]=atan2((double)_prmat[3],(double)_prmat[0]);
 	for(int i = 0; i < 3; i++)
 	{
 		tvec[i] = _ptvec[i];
@@ -106,6 +111,7 @@ int main( int argc, char** argv )
 	moveWindow("Imagen gris",0,600);
 		//namedWindow( "Matriz Back", 1 );
 	char s[1024], *t;
+
 	double _prvec[3] = { 0, 0, 0 };
 	double _ptvec[3] = { 0, 0, 0 };
 	CvPoint2D32f projectedPoints[N];
@@ -157,13 +163,17 @@ int main( int argc, char** argv )
 	for(;;)
 	{
 	    Mat frame;
+
 	    cap >> frame;
 	    if( frame.empty() )
 	    cout<<"No se encontro frame"<<endl;
+
 	    frame.copyTo(image);
+
 	    std::vector<cv::Mat> rgbChannels(3);
 	    split(image, rgbChannels);
 	    Mat gray = rgbChannels[2];
+	    equalizeHist( gray, gray );
 	    Mat maskNose (gray.size(), CV_8UC1);
 	    Mat maskLeft (gray.size(), CV_8UC1);
 
@@ -206,6 +216,7 @@ int main( int argc, char** argv )
 	        		modelPoints[i].x=points[0][i].x;
 	        		modelPoints[i].y=points[0][i].y;
 	        		modelPoints[i].z=0.0f;
+//	        		circle( image, points[1][i], markerThickness, Scalar(0,255,0), -1, 8);
 	        	}
 	        	cout<<sizeof modelPoints<<endl;
 	        	//-- Encontrar y dibujar la region de la nariz
@@ -221,7 +232,7 @@ int main( int argc, char** argv )
 	            cornerSubPix(gray, points[1], winSize, Size(-1,-1), termcrit);
 
 	            addRemovePt = false;
-	            cout<<"llegue aqui 2 "<<points[0].size()<<endl;
+
 	            for(unsigned i=0;i<3&&i<points[0].size();i++)
 	            {
 	            	modelPoints[i].x=points[0][i].x;
@@ -229,7 +240,7 @@ int main( int argc, char** argv )
 	            	modelPoints[i].z=3.0f;
 	            }
 	            cout<<sizeof modelPoints<<endl;
-	            cout<<"llegue aqui 3"<<endl;
+
 	            positObject = cvCreatePOSITObject( modelPoints, 6 );
 	            imshow("Imagen gris",gray(cvRect(faces[0].x,faces[0].y, faces[0].width, faces[0].height)));
 	            cvInitFont(&defFont, CV_FONT_HERSHEY_COMPLEX_SMALL, 0.8f, 0.8f, 0, 1, 1);
@@ -287,9 +298,9 @@ int main( int argc, char** argv )
 //	        cout<<projectedPoints[0].x<<"	"<<projectedPoints[1].x<<"	"<<projectedPoints[2].x<<"	"<<projectedPoints[3].x<<endl;
 //	       	cout <<ANGLE(_prvec[0])<<"	"<<ANGLE(_prvec[1])<<"	"<<ANGLE(_prvec[2])<<endl;
 	       	t = s;
-	       	t += sprintf(s,"T  %.1f %.1f %.1f ",_ptvec[0],_ptvec[1],_ptvec[2]);
-	       	t += sprintf(t,"R %.0f %.0f %.0f ",ANGLE(_prvec[0]),ANGLE(_prvec[1]),ANGLE(_prvec[2]));
-	       	putText(image, s, cvPoint(10,20), 1, 0.8, cvScalar(25,25,25), 1, 0);
+	       	t += sprintf(s,"Traslacion  x=%.1f y=%.1f z=%.1f ",_ptvec[0],_ptvec[1],_ptvec[2]);
+	       	t += sprintf(t,"Rotacion x=%.0f y=%.0f z=%.0f ",ANGLE(_prvec[0]),ANGLE(_prvec[1]),ANGLE(_prvec[2]));
+	       	putText(image, s, cvPoint(10,40), 1, 0.8, cvScalar(25,25,25), 1, 0);
 	       	myfile<<_prvec[0]<<","<<_prvec[1]<<","<<_prvec[2]<<endl;
 	       	myfile.close();
 	        points[1].resize(k);
