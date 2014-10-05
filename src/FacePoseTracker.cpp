@@ -29,7 +29,7 @@ double _intrinsics[9] =
 CvMat intrinsics = cvMat(4,4,CV_64F, _intrinsics);
 
 
-void rotateImage(const Mat, Mat, double, double, double, double, double, double, double);
+void rotateImage(Mat&, Mat&, double, double, double, double, double, double, double);
 
 
 void posit(int n, CvPoint3D32f *model, CvPoint2D32f *projection, double *tvec, double *rvec,CvPOSITObject *positObject) {
@@ -43,6 +43,7 @@ void posit(int n, CvPoint3D32f *model, CvPoint2D32f *projection, double *tvec, d
 	//CvPOSITObject *positObject = cvCreatePOSITObject( &model[0], 4 );
 	CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 400, 1.0e-5f);
 	cvPOSIT( positObject, &projection[0], focalPoint, criteria, _prmat, _ptvec );
+	cout <<_ptvec[0]<<"	"<<_ptvec[1]<<"	"<<_ptvec[2]<<endl;
 //	cvRodrigues2(&prmat, &prvec);
 	_prvec[0]=atan2((double)_prmat[7],(double)_prmat[8]);
 	double a =(double)pow(_prmat[7],2)+(double)pow(_prmat[8],2);
@@ -50,9 +51,10 @@ void posit(int n, CvPoint3D32f *model, CvPoint2D32f *projection, double *tvec, d
 	_prvec[2]=atan2((double)_prmat[3],(double)_prmat[0]);
 	for(int i = 0; i < 3; i++)
 	{
-		tvec[i] = _ptvec[i];
+		tvec[i] = (double)_ptvec[i];
 		rvec[i] = _prvec[i];
 	}
+
 
 }
 
@@ -295,17 +297,21 @@ int main( int argc, char** argv )
 	            circle( image, points[1][i], markerThickness, Scalar(0,255,0), -1, 8);
 	            circle( maskNose, points[1][i], markerThickness, Scalar(128,128,128), -1, 8);
 	        }
-	        ofstream myfile ("datos.txt",ios::app);
+
 //	        cout<<modelPoints[0].x<<"	"<<modelPoints[1].x<<"	"<<modelPoints[2].x<<"	"<<modelPoints[3].x<<endl;
 //	        cout<<projectedPoints[0].x<<"	"<<projectedPoints[1].x<<"	"<<projectedPoints[2].x<<"	"<<projectedPoints[3].x<<endl;
-//	       	cout <<ANGLE(_prvec[0])<<"	"<<ANGLE(_prvec[1])<<"	"<<ANGLE(_prvec[2])<<endl;
+	       	cout <<_ptvec[0]<<"	"<<_ptvec[1]<<"	"<<_ptvec[2]<<endl;
 	       	t = s;
 	       	t += sprintf(s,"Traslacion  x=%.1f y=%.1f z=%.1f ",_ptvec[0],_ptvec[1],_ptvec[2]);
 	       	t += sprintf(t,"Rotacion x=%.0f y=%.0f z=%.0f ",ANGLE(_prvec[0]),ANGLE(_prvec[1]),ANGLE(_prvec[2]));
-	       	putText(image, s, cvPoint(10,40), 1, 0.8, cvScalar(25,25,25), 1, 0);
-	       	putText(image, s, cvPoint(30,40), 1, 0.8, cvScalar(250,250,250), 1, 0);
-	       	myfile<<_prvec[0]<<","<<_prvec[1]<<","<<_prvec[2]<<endl;
-	       	myfile.close();
+	       	putText(image, s, cvPoint(10,20), 1, 0.8, cvScalar(25,25,25), 1, 0);
+	       	putText(image, s, cvPoint(10,40), 1, 0.8, cvScalar(250,250,250), 1, 0);
+	       	if(archivo)
+	       	{
+	       		ofstream myfile ("datos.txt",ios::app);
+	       		myfile<<_prvec[0]<<","<<_prvec[1]<<","<<_prvec[2]<<endl;
+	       		myfile.close();
+	       	}
 	        points[1].resize(k);
 	    }
 
@@ -336,7 +342,9 @@ int main( int argc, char** argv )
 	    }
 	    if(!frame.empty())
 	   	{
-	    	if(video)grabarVideo(image, cap);
+	    	Mat salida;
+	    	if(video) grabarVideo(image, cap);
+	    	if(rotacion) rotateImage(image,image,90,120,90,0,0,360,360);
 	   	    imshow("Head tracking", image);
 	   	    imshow("Mascara",maskNose);
 

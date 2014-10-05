@@ -19,7 +19,20 @@
 
 
 
-const bool video = true;
+
+
+
+
+
+
+const bool video = false;
+const std::string home = "C:/Users/guillermo/Desktop";
+const std::string vidDir = home + "/Videos/";
+const std::string imgDir = home+ "/Pictures/";
+const std::string vidCodec = "DIVX";
+const std::string imgFmt = "jpg";
+const bool rotacion = false;
+const bool archivo = false;
 
 
 // Constantes geometricas
@@ -34,7 +47,7 @@ const int kNosePercentWidth = 25;
 
 //Camaras
 const int camInterior = 0;
-const int focalPoint = 6000;
+const int focalPoint = 600;
 
 const double qualityLevel = 0.3;
 const int MAX_COUNT = 10;

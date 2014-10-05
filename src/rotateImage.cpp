@@ -23,7 +23,7 @@ using namespace std;
 
 
 
-void rotateImage(const Mat &input, Mat &output, double alpha, double beta, double gamma, double dx, double dy, double dz, double f)
+void rotateImage(Mat &input, Mat &output, double alpha, double beta, double gamma, double dx, double dy, double dz, double f)
 
   {
 

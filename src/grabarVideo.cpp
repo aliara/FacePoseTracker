@@ -7,6 +7,7 @@
 #include <time.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include "constants.h"
 
 using namespace cv;
 using namespace std;
@@ -50,23 +51,19 @@ void grabarVideo(Mat frame, VideoCapture cap)
 	bool static isRecording = false;
 	VideoWriter static writer;
 	time_t static vidDelta = 0;
-	string home = "C:/Users/guillermo/Desktop";
-	string vidCodec = "DIVX";
+
+
 	int vidFps = 10;
-	string vidDir = home + "/Videos/";
 	int fourcc = CV_FOURCC(vidCodec[0],vidCodec[1],vidCodec[2], vidCodec[3]);
 	int imgInterval = 60; // seconds
-	string imgDir = home+ "/Pictures/";
 	int imgNum = 0;
-	string imgFmt = "jpg";
 	time_t sec;
 	long static frameNum = 0;
-	int key = 255;
 	bool isDisplayEnabled = false;
-	int delay = 1;
-	bool isEnabled = true;
+//	int delay = 1;
 	int vidNum = 1;
 	bool isRecordingEnabled = vidNum > 0 ? true : false;
+
 	bool isImageCaptureEnabled = imgNum > 0 ? true : false;
 
 	time_t vidTime = 20;
@@ -88,10 +85,7 @@ void grabarVideo(Mat frame, VideoCapture cap)
 	        	imshow("Current Frame", frame);
 	        }
 
-	        else
-	        {
-	            isEnabled = isRecordingEnabled || isImageCaptureEnabled;
-	        }
+
 
 	        // Decide whether to create new video file
 	        if ((isRecordingEnabled) && (!isRecording))
@@ -99,9 +93,17 @@ void grabarVideo(Mat frame, VideoCapture cap)
 	            int width = (int)cap.get(CV_CAP_PROP_FRAME_WIDTH);
 	            int height = (int)cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 	            writer = createVideoFile(vidDir, width, height, vidFps, fourcc, sec);
-	            vidTime = sec;
-	            isRecording = true;
-	            frameNum = 0;
+	            if(writer.isOpened())
+	            {
+	            	vidTime = sec;
+	            	isRecording = true;
+	            	frameNum = 0;
+	            }
+	            else
+	            {
+	            	cout<< "No se pudo abrir el directorio: "<<vidDir<<endl;
+	            	isRecordingEnabled=false;
+	            }
 	        }
 
 	        // Write frame to video, calculate time interval and whether or not to create new video file
@@ -109,13 +111,13 @@ void grabarVideo(Mat frame, VideoCapture cap)
 	        {
 	            writer.write(frame);
 	            vidDelta = sec - vidTime;
-	            cout << "vidDelta "<<vidDelta<<" >= "<<vidInterval<<endl;
+//	            cout << "vidDelta "<<vidDelta<<" >= "<<vidInterval<<endl;
 
 	            if (vidDelta >= vidInterval) {
 	//                isRecording = false;
 	                vidTotal = vidTotal + 1;
-	                cout << "Videos recorded =" << vidTotal << "/" << vidNum << endl;
-	                cout << "vidTotal="<<vidTotal<<" vidNum="<<vidNum<<endl;
+//	                cout << "Videos recorded =" << vidTotal << "/" << vidNum << endl;
+//	                cout << "vidTotal="<<vidTotal<<" vidNum="<<vidNum<<endl;
 
 	                if (vidTotal >= vidNum) {
 	                    isRecordingEnabled = false;
@@ -125,7 +127,7 @@ void grabarVideo(Mat frame, VideoCapture cap)
 	                            frameNum = 0;
 	                    }
 
-	                    cout << "Recording completed fps=" << fps << endl;
+//	                    cout << "Recording completed fps=" << fps << endl;
 
 	                    if (isDisplayEnabled) {
 	                            writer = VideoWriter();
