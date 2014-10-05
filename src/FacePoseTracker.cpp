@@ -18,6 +18,8 @@
 using namespace cv;
 using namespace std;
 
+void grabarVideo(Mat, VideoCapture);
+
 
 double _intrinsics[9] =
 	{ focalPoint, 0., W/2,
@@ -301,6 +303,7 @@ int main( int argc, char** argv )
 	       	t += sprintf(s,"Traslacion  x=%.1f y=%.1f z=%.1f ",_ptvec[0],_ptvec[1],_ptvec[2]);
 	       	t += sprintf(t,"Rotacion x=%.0f y=%.0f z=%.0f ",ANGLE(_prvec[0]),ANGLE(_prvec[1]),ANGLE(_prvec[2]));
 	       	putText(image, s, cvPoint(10,40), 1, 0.8, cvScalar(25,25,25), 1, 0);
+	       	putText(image, s, cvPoint(30,40), 1, 0.8, cvScalar(250,250,250), 1, 0);
 	       	myfile<<_prvec[0]<<","<<_prvec[1]<<","<<_prvec[2]<<endl;
 	       	myfile.close();
 	        points[1].resize(k);
@@ -333,6 +336,7 @@ int main( int argc, char** argv )
 	    }
 	    if(!frame.empty())
 	   	{
+	    	if(video)grabarVideo(image, cap);
 	   	    imshow("Head tracking", image);
 	   	    imshow("Mascara",maskNose);
 

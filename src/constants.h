@@ -19,7 +19,7 @@
 
 
 
-
+const bool video = true;
 
 
 // Constantes geometricas

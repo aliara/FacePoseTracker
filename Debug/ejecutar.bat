@@ -1,3 +1,3 @@
 FacePoseTracker.exe 0
-rem FacePoseTracker.exe lllll.AVI
+FacePoseTracker.exe video1.AVI
 pause
