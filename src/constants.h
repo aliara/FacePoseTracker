@@ -7,7 +7,7 @@
 
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
-#define N 4
+#define N 8
 #define PI 3.14159265
 #define SHIFT 5000
 #define W 640
@@ -32,7 +32,7 @@ const std::string imgDir = home+ "/Pictures/";
 const std::string vidCodec = "DIVX";
 const std::string imgFmt = "jpg";
 const bool rotacion = false;
-const bool archivo = false;
+const bool archivo = true;
 
 
 // Constantes geometricas
@@ -47,7 +47,7 @@ const int kNosePercentWidth = 25;
 
 //Camaras
 const int camInterior = 0;
-const int focalPoint = 600;
+const int focalPoint = 1600;
 
 const double qualityLevel = 0.3;
 const int MAX_COUNT = 10;
